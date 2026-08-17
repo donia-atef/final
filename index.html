@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>تطبيق المحطات</title>
+
     <style>
       body {
         font-family: system-ui, sans-serif;
@@ -12,12 +13,14 @@
         background-color: #121212;
         color: #fff;
       }
+
       .stations-container {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
         gap: 20px;
       }
+
       .btn-station {
         background: none;
         border: 2px solid #333;
@@ -27,9 +30,11 @@
         transition: transform 0.2s;
         max-width: 250px;
       }
+
       .btn-station:hover {
         transform: scale(1.03);
       }
+
       .btn-station img {
         width: 100%;
         height: auto;
@@ -40,13 +45,16 @@
       .modal-overlay {
         display: none;
         position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         background: rgba(0, 0, 0, 0.85);
         justify-content: center;
         align-items: center;
         z-index: 1000;
       }
+
       .modal-content {
         background: #1e1e1e;
         padding: 25px;
@@ -56,8 +64,9 @@
         max-height: 85vh;
         overflow-y: auto;
         position: relative;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
       }
+
       .close-btn {
         position: absolute;
         top: 10px;
@@ -74,6 +83,7 @@
         margin-top: 20px;
         flex-wrap: wrap;
       }
+
       .sub-card {
         background: #2a2a2a;
         border: 1px solid #444;
@@ -84,9 +94,11 @@
         width: 140px;
         transition: background 0.2s;
       }
+
       .sub-card:hover {
         background: #007bff;
       }
+
       .sub-card img {
         width: 100%;
         border-radius: 6px;
@@ -94,6 +106,7 @@
         margin-bottom: 5px;
       }
 
+      /* النص */
       .text-box {
         background: #292929;
         border: 1px solid #007bff;
@@ -106,6 +119,8 @@
         text-align: right;
         white-space: pre-line;
       }
+
+      /* السؤال */
       .question-title {
         color: #ff4d4d;
         font-weight: bold;
@@ -115,14 +130,18 @@
         padding-top: 15px;
         text-align: right;
         white-space: pre-line;
+        line-height: 1.8;
+        padding-bottom: 10px;
       }
     </style>
   </head>
+
   <body>
 
     <h2>اختر المحطة</h2>
 
     <div class="stations-container">
+
       <button class="btn-station" onclick="openStation('station1')">
         <img src="المحطة الاولى .png" alt="المحطة الأولى" />
       </button>
@@ -134,26 +153,54 @@
       <button class="btn-station" onclick="openStation('station3')">
         <img src="المحطة الثالثة.png" alt="المحطة الثالثة" />
       </button>
+
     </div>
+
 
     <div id="modal" class="modal-overlay" onclick="closeModal()">
+
       <div class="modal-content" onclick="event.stopPropagation()">
+
         <span class="close-btn" onclick="closeModal()">&times;</span>
+
         <h3 id="modal-title">خيارات المحطة</h3>
+
         <div id="sub-options-container" class="sub-options"></div>
-        <div id="text-display" style="display:none;" class="text-box"></div>
-        <div id="question-display" style="display:none;" class="question-title"></div>
+
+        <!-- النص يظهر هنا -->
+        <div
+          id="text-display"
+          style="display: none;"
+          class="text-box">
+        </div>
+
+        <!-- السؤال يظهر هنا تحت النص -->
+        <div
+          id="question-display"
+          style="display: none;"
+          class="question-title">
+        </div>
+
       </div>
+
     </div>
 
+
     <script>
+
       const stationsData = {
+
         station1: {
+
           title: "المحطة الأولى",
+
           subItems: [
-            { 
-              name: "البشارة", 
-              image: "المحطة الاولى/البشارة.png", 
+
+            {
+              name: "البشارة",
+
+              image: "المحطة الاولى/البشارة.png",
+
               textContent: `*البشارة بميلاد يسوع*
 26 وَفِي الشَّهْرِ السَّادِسِ أُرْسِلَ جِبْرَائِيلُ الْمَلاَكُ مِنَ اللهِ إِلَى مَدِينَةٍ مِنَ الْجَلِيلِ اسْمُهَا نَاصِرَةُ،
 27 إِلَى عَذْرَاءَ مَخْطُوبَةٍ لِرَجُلٍ مِنْ بَيْتِ دَاوُدَ اسْمُهُ يُوسُفُ. وَاسْمُ الْعَذْرَاءِ مَرْيَمُ.
@@ -168,16 +215,11 @@
 36 وَهُوَذَا أَلِيصَابَاتُ نَسِيبَتُكِ هِيَ أَيْضًا حُبْلَى بِابْنٍ فِي شَيْخُوخَتِهَا، وَهَذَا هُوَ الشَّهْرُ السَّادِسُ لِتِلْكَ الْمَدْعُوَّةِ عَاقِرًا،
 37 لأَنَّهُ لَيْسَ شَيْءٌ غَيْرَ مُمْكِنٍ لَدَى اللهِ».
 38 فَقَالَتْ مَرْيَمُ: «هُوَذَا أَنَا أَمَةُ الرَّبِّ. لِيَكُنْ لِي كَقَوْلِكَ». فَمَضَى مِنْ عِنْدِهَا الْمَلاَكُ`,
-              question: "
+
+              question: `
 🎯 سؤال المحطة 
 
-
 اكتبوا ٣ صفات ظهرت في رد العذراء ؟
-
-
-✅ الإجابة:
-
-> "ليكن لي كقولك." لأنها إعلان قبولها لمشيئة الله.
 
 
 💬 سؤال للمناقشة
@@ -189,14 +231,19 @@
 
 > الله لا يبحث عن أشخاص بلا خوف، بل عن أشخاص يثقون فيه أكثر من خوفهم.
 
-العذراء خافت، وسألت، لكنها في النهاية قالت: "ليكن لي كقولك.""
-            }, 
-            { 
-              name: "زيارة اليصابات", 
-              image: "المحطة الاولى/زيارة اليصابات.png", 
+العذراء خافت، وسألت، لكنها في النهاية قالت: "ليكن لي كقولك."
+`
+            },
+
+            {
+              name: "زيارة اليصابات",
+
+              image: "المحطة الاولى/زيارة اليصابات.png",
+
               textContent: `*العذراء مريم تزور أليصابات*
 39 فَقَامَتْ مَرْيَمُ فِي تِلْكَ الأَيَّامِ وَذَهَبَتْ بِسُرْعَةٍ إِلَى الْجِبَالِ إِلَى مَدِينَةِ يَهُوذَا`,
-              question: "
+
+              question: `
 🎯 سؤال المحطة
 
 > ما الكلمة التي تكشف شخصية العذراء في هذه الآية؟ ولماذا؟
@@ -209,23 +256,32 @@
 
 
 
-💬 سؤال للمناقشة
+🧩 سؤال للمناقشة
 
 > لو كنت مكان العذراء، بعد ما سمعت أعظم بشارة في حياتك، كنت هتفكر في نفسك... ولا كنت هتسيب كل حاجة وتروح تخدم حد تاني؟ ولماذا؟
 
 
-💙 الرسالة
+💬 الرسالة
 
-> العذراء علمتنا أن الإنسان الممتلئ بالله لا ينشغل بنفسه، بل يسرع ليخدم الآخرين بمحبة."
+> العذراء علمتنا أن الإنسان الممتلئ بالله لا ينشغل بنفسه، بل يسرع ليخدم الآخرين بمحبة.
+`
             }
+
           ]
         },
+
+
         station2: {
+
           title: "المحطة الثانية",
+
           subItems: [
+
             {
               name: "ميلاد المسيح",
+
               image: "المحطة التانية/ميلاد المسيح.png",
+
               textContent: `*ميلاد يسوع المسيح*
 1 وَفِي تِلْكَ الأَيَّامِ صَدَرَ أَمْرٌ مِنْ أُوغُسْطُسَ قَيْصَرَ بِأَنْ يُكْتَتَبَ كُلُّ الْمَسْكُونَةِ.
 2 وَهَذَا الاكْتِتَابُ الأَوَّلُ جَرَى إِذْ كَانَ كِيرِينِيُوسُ وَالِيَ سُورِيَّةَ.
@@ -251,36 +307,50 @@
 
 
 `,
-              question: "
+
+              question: `
 
 🎯 سؤال المحطة
 
 > استخرجوا من النص دليلين يثبتان أن العذراء قبلت مشيئة الله حتى في الظروف الصعبة.
 
-
-💬 سؤال للمناقشة
+🧩 سؤال للمناقشة
 
 إيه أصعب حاجة في رأيك كانت بالنسبة للعذراء في ليلة الميلاد؟ السفر؟ ولا عدم وجود مكان؟ ولا الولادة في المذود؟ وليه؟
 
-
-💙 الرسالة الهادفة
+💬 الرسالة
 
 > الله لا ينظر إلى المكان أو الإمكانيات، بل يعمل في القلب المستعد.
 
-العذراء علمتنا أن قبول مشيئة الله أهم من راحة الإنسان، وأن التواضع هو الطريق الذي اختاره المسيح منذ ميلاده."
+العذراء علمتنا أن قبول مشيئة الله أهم من راحة الإنسان، وأن التواضع هو الطريق الذي اختاره المسيح منذ ميلاده.
+`
             },
+
             {
               name: "الهروب",
+
               image: "المحطة التانية/الهروب.png",
+
               textContent: `*الهرب إلى مصر*
 13 وَبَعْدَمَا انْصَرَفُوا، إِذَا مَلاَكُ الرَّبِّ قَدْ ظَهَرَ لِيُوسُفَ فِي حُلْمٍ قَائِلًا: «قُمْ وَخُذِ الصَّبِيَّ وَأُمَّهُ وَاهْرُبْ إِلَى مِصْرَ، وَكُنْ هُنَاكَ حَتَّى أَقُولَ لَكَ. لأَنَّ هِيرُودُسَ مُزْمِعٌ أَنْ يَطْلُبَ الصَّبِيَّ لِيُهْلِكَهُ».
 14 فَقَامَ وَأَخَذَ الصَّبِيَّ وَأُمَّهُ لَيْلًا وَانْصَرَفَ إِلَى مِصْرَ.
 15 وَكَانَ هُنَاكَ إِلَى وَفَاةِ هِيرُودُسَ. لِكَيْ يَتِمَّ مَا قِيلَ مِنَ الرَّبِّ بِالنَّبِيِّ الْقَائِلِ: «مِنْ مِصْرَ دَعَوْتُ ابْنِي».`,
-              question: "سُؤَال: اقرأوا الفقرة، ثم استخرجوا 4 صفات ظهرت في أمنا العذراء."
+
+              question: `اقرأوا الفقرة، ثم استخرجوا 4 صفات ظهرت في أمنا العذراء، واكتبوا الآية التي تدل عليها
+
+🧩 سؤال المناقشة
+لو كنت مكان العذراء، وطُلب منك تسيب بيتك في نص الليل وتسافر لبلد مجهولة... كنت هتعمل إيه؟
+💬 سؤال تطبيقي
+إيه أصعب موقف احتاجت فيه تثق في ربنا حتى وأنت مش فاهم ليه بيحصل؟
+🎯 الرسالة
+العذراء علمتنا إن الطاعة والثقة في الله لا تعنيان أن الطريق سيكون سهلًا، لكن تعنيان أن الله سيكون معنا في الطريق`
             },
+
             {
               name: "العرس و الهيكل",
+
               image: "المحطة التانية/العرس و الهيكل.png",
+
               textContent: `
 *العُرْس في قانا الجليل والمعجزة الأولى*
 1 وَفِي الْيَوْمِ الثَّالِثِ كَانَ عُرْسٌ فِي قَانَا الْجَلِيلِ، وَكَانَتْ أُمُّ يَسُوعَ هُنَاكَ.
@@ -309,23 +379,51 @@
 50 فَلَمْ يَفْهَمَا الْكَلاَمَ الَّذِي قَالَهُ لَهُمَا.
 51 ثُمَّ نَزَلَ مَعَهُمَا وَجَاءَ إِلَى النَّاصِرَةِ وَكَانَ خَاضِعًا لَهُمَا. وَكَانَتْ أُمُّهُ تَحْفَظُ جَمِيعَ هَذِهِ الأُمُورِ فِي قَلْبِهَا.
 `,
-              question: "سُؤَال: ليه العذراء ما طلبتش من المسيح يعمل معجزة، لكنها قالت للخدام: 'مهما قال لكم فافعلوه'؟"
+
+              question: `"لو كنت محققًا في الإنجيل، ما الأدلة التي تثبت أن العذراء كانت:
+.أمينة في عبادتها
+.محبة وحنونة
+.صبورة
+.متأملة في كلام الله
+
+
+
+.اكتب رقم الآية التي تثبت كل صفة"                                                                                                                                        في رأيك، ليه العذراء ما طلبتش من المسيح يعمل معجزة، لكنها قالت للخدام: "مهما قال لكم فافعلوه"؟
+ 
+
+🧩 سؤال للمناقشة 
+لما ربنا يعمل حاجة أنت مش فاهمها... بتبعد عنه؟ ولا تفضل متمسك بيه؟
+
+💬 رسالة المحطة
+
+العذراء علمتنا إن الإيمان الحقيقي مش إنك تفهم كل حاجة، لكن إنك تثق في ربنا حتى لو مش فاهم كل حاجة.
+
+"الإيمان ليس أن أعرف كل الإجابات... بل أن أثق بالله حتى عندما لا أفهم."`
             }
+
           ]
         },
+
+
         station3: {
+
           title: "المحطة الثالثة",
+
           subItems: [
-            { 
-              name: "الصلب", 
-              image: "المحطة الثالثة/الصلب.png", 
-              textContent: 
+
+            {
+              name: "الصلب",
+
+              image: "المحطة الثالثة/الصلب.png",
+
+              textContent:
                 `*الصلب*
                 وَكَانَتْ وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ، أُمُّهُ، وَأُخْتُ أُمِّهِ مَرْيَمُ زَوْجَةُ كِلُوبَا، وَمَرْيَمُ الْمَجْدَلِيَّةُ.
 26 فَلَمَّا رَأَى يَسُوعُ أُمَّهُ، وَالتِّلْمِيذَ الَّذِي كَانَ يُحِبُّهُ وَاقِفًا، قَالَ لأُمِّهِ: «يَا امْرَأَةُ، هُوَذَا ابْنُكِ».
 27 ثُمَّ قَالَ لِلتِّلْمِيذِ: «هُوَذَا أُمُّكَ». وَمِنْ تِلْكَ السَّاعَةِ أَخَذَهَا التِّلْمِيذُ إِلَى خَاصَّتِهِ.
 
 `,
+
               question: `📖 اقرأ يوحنا 19: 25-27
 استخرج من النص ثلاث صفات ظهرت في أمنا العذراء، واكتب أمام كل صفة الشاهد (الآية) الذي يدل عليها ؟ ❓
 
@@ -336,18 +434,24 @@
 المحبة الحقيقية لا تهرب وقت الألم، بل تثبت مع المسيح حتى النهاية.
 📖 "وكانت واقفات عند صليب يسوع أمه." (يوحنا 19: 25)
 `
-              
-            }, 
-            { 
-              name: "العنصرة", 
-              image: "المحطة الثالثة/العنصرة.png", 
-             textContent: ` *العنصرة*
+            },
+
+            {
+              name: "العنصرة",
+
+              image: "المحطة الثالثة/العنصرة.png",
+
+              textContent:
+                ` *العنصرة*
               14 هَؤُلاَءِ كُلُّهُمْ كَانُوا يُواظِبُونَ بِنَفْسٍ وَاحِدَةٍ عَلَى الصَّلاَةِ وَالطِّلْبَةِ، مَعَ النِّسَاءِ، وَمَرْيَمَ أُمِّ يَسُوعَ، وَمَعَ إِخْوَتِهِ.
 
 `,
-              question: ` ❓بعد كل الأحداث التي مرت بها العذراء، أين وجدها الإنجيل؟ وماذا كانت تفعل؟
-🧩 التحدي (رتبوا الاية ترتيب صحيحًا):
-الصلاة - بنفس واحدة - مريم أم يسوع - النساء - الطلبة
+
+              question: ` 
+              ❓بعد كل الأحداث التي مرت بها العذراء، أين وجدها الإنجيل؟ وماذا كانت تفعل؟
+
+  🧩 التحدي (رتبوا الاية ترتيب صحيحًا):
+  الصلاة - بنفس واحدة - مريم أم يسوع - النساء - الطلبة
 
 🎯 التطبيق: لو حد سأل عنك النهارده، هل هيقدر يقول: "ده شخص يواظب على الصلاة"؟
 
@@ -356,46 +460,86 @@
 القرب من الله لا يقاس بما حدث معي في الماضي، بل بمدى مواظبتي على الصلاة والشركة مع الكنيسة اليوم.
 `
             }
+
           ]
         }
+
       };
 
+
       function openStation(stationId) {
+
         const data = stationsData[stationId];
+
         if (!data) return;
 
         document.getElementById('modal-title').innerText = data.title;
+
         document.getElementById('text-display').style.display = 'none';
+
         document.getElementById('question-display').style.display = 'none';
 
-        const container = document.getElementById('sub-options-container');
+        const container =
+          document.getElementById('sub-options-container');
+
         container.innerHTML = "";
 
         data.subItems.forEach(item => {
+
           const card = document.createElement('div');
+
           card.className = 'sub-card';
-          card.onclick = () => showContent(item.name, item.textContent, item.question);
-          card.innerHTML = `<img src="${item.image}" alt="${item.name}"><span>${item.name}</span>`;
+
+          card.onclick = () =>
+            showContent(
+              item.name,
+              item.textContent,
+              item.question
+            );
+
+          card.innerHTML =
+            `<img src="${item.image}" alt="${item.name}">
+             <span>${item.name}</span>`;
+
           container.appendChild(card);
+
         });
 
         document.getElementById('modal').style.display = 'flex';
       }
 
+
       function showContent(name, text, question) {
+
         document.getElementById('modal-title').innerText = name;
-        const textDiv = document.getElementById('text-display');
+
+        // عرض النص أولًا
+        const textDiv =
+          document.getElementById('text-display');
+
         textDiv.innerText = text;
+
         textDiv.style.display = 'block';
 
-        const qDiv = document.getElementById('question-display');
+
+        // عرض السؤال تحت النص
+        const qDiv =
+          document.getElementById('question-display');
+
         qDiv.innerText = question;
+
         qDiv.style.display = 'block';
+
       }
 
+
       function closeModal() {
+
         document.getElementById('modal').style.display = 'none';
+
       }
+
     </script>
+
   </body>
 </html>
