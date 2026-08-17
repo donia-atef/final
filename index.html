@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تطبيق المحطات</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        text-align: center;
+        padding: 20px;
+        background-color: #121212;
+        color: #fff;
+      }
+      .stations-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+      }
+      .btn-station {
+        background: none;
+        border: 2px solid #333;
+        border-radius: 12px;
+        padding: 10px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        max-width: 250px;
+      }
+      .btn-station:hover {
+        transform: scale(1.03);
+      }
+      .btn-station img {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        display: block;
+      }
+
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background: #1e1e1e;
+        padding: 25px;
+        border-radius: 15px;
+        max-width: 650px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+      }
+      .close-btn {
+        position: absolute;
+        top: 10px;
+        left: 15px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #aaa;
+      }
+
+      .sub-options {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .sub-card {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 10px;
+        padding: 10px;
+        cursor: pointer;
+        color: #fff;
+        width: 140px;
+        transition: background 0.2s;
+      }
+      .sub-card:hover {
+        background: #007bff;
+      }
+      .sub-card img {
+        width: 100%;
+        border-radius: 6px;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .text-box {
+        background: #292929;
+        border: 1px solid #007bff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #ddd;
+        text-align: right;
+        white-space: pre-line;
+      }
+      .question-title {
+        color: #ff4d4d;
+        font-weight: bold;
+        font-size: 1.15rem;
+        margin-top: 20px;
+        border-top: 1px dashed #555;
+        padding-top: 15px;
+        text-align: right;
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+  <body>
+
+    <h2>اختر المحطة</h2>
+
+    <div class="stations-container">
+      <button class="btn-station" onclick="openStation('station1')">
+        <img src="المحطة الاولى .png" alt="المحطة الأولى" />
+      </button>
+
+      <button class="btn-station" onclick="openStation('station2')">
+        <img src="المحطة الثانية.png" alt="المحطة الثانية" />
+      </button>
+
+      <button class="btn-station" onclick="openStation('station3')">
+        <img src="المحطة الثالثة.png" alt="المحطة الثالثة" />
+      </button>
+    </div>
+
+    <div id="modal" class="modal-overlay" onclick="closeModal()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 id="modal-title">خيارات المحطة</h3>
+        <div id="sub-options-container" class="sub-options"></div>
+        <div id="text-display" style="display:none;" class="text-box"></div>
+        <div id="question-display" style="display:none;" class="question-title"></div>
+      </div>
+    </div>
+
+    <script>
+      const stationsData = {
+        station1: {
+          title: "المحطة الأولى",
+          subItems: [
+            { 
+              name: "البشارة", 
+              image: "المحطة الاولى/البشارة.png", 
+              textContent: `البشارة بميلاد يسوع
+26 وَفِي الشَّهْرِ السَّادِسِ أُرْسِلَ جِبْرَائِيلُ الْمَلاَكُ مِنَ اللهِ إِلَى مَدِينَةٍ مِنَ الْجَلِيلِ اسْمُهَا نَاصِرَةُ،
+27 إِلَى عَذْرَاءَ مَخْطُوبَةٍ لِرَجُلٍ مِنْ بَيْتِ دَاوُدَ اسْمُهُ يُوسُفُ. وَاسْمُ الْعَذْرَاءِ مَرْيَمُ.
+28 فَدَخَلَ إِلَيْهَا الْمَلاَكُ وَقَالَ: «سَلاَمٌ لَكِ أَيَّتُهَا الْمُنْعَمُ عَلَيْهَا! اَلرَّبُّ مَعَكِ. مُبَارَكَةٌ أَنْتِ فِي النِّسَاءِ».
+29 فَلَمَّا رَأَتْهُ اضْطَرَبَتْ مِنْ كَلَامِهِ، وَفَكَّرَتْ: «مَا عَسَى أَنْ تَكُونَ هَذِهِ التَّحِيَّةُ!»
+30 فَقَالَ لَهَا الْمَلاَكُ: «لاَ تَخَافِي يَا مَرْيَمُ، لأَنَّكِ قَدْ وَجَدْتِ نِعْمَةً عِنْدَ اللهِ.
+31 وَهَا أَنْتِ سَتَحْبَلِينَ وَتَلِدِينَ ابْنًا وَتُسَمِّينَهُ يَسُوعَ.
+32 هَذَا يَكُونُ عَظِيمًا، وَابْنَ الْعَلِيِّ يُدْعَى، وَيُعْطِيهِ الرَّبُّ الإِلَهُ كُرْسِيَّ دَاوُدَ أَبِيهِ،
+33 وَيَمْلِكُ عَلَى بَيْتِ يَعْقُوبَ إِلَى الأَبَدِ، وَلَا يَكُونُ لِمُلْكِهِ نِهَايَةٌ».
+34 فَقَالَتْ مَرْيَمُ لِلْمَلاَكِ: «كَيْفَ يَكُونُ هَذَا وَأَنَا لَسْتُ أَعْرِفُ رَجُلًا؟»
+35 فَأَجَابَ الْمَلاَكُ وَقَالَ لَهَا: «اَلرُّوحُ الْقُدُسُ يَحِلُّ عَلَيْكِ، وَقُوَّةُ الْعَلِيِّ تُظَلِّلُكِ، فَلِذَلِكَ أَيْضًا الْقُدُّوسُ الْمَوْلُودُ مِنْكِ يُدْعَى ابْنَ اللهِ.
+36 وَهُوَذَا أَلِيصَابَاتُ نَسِيبَتُكِ هِيَ أَيْضًا حُبْلَى بِابْنٍ فِي شَيْخُوخَتِهَا، وَهَذَا هُوَ الشَّهْرُ السَّادِسُ لِتِلْكَ الْمَدْعُوَّةِ عَاقِرًا،
+37 لأَنَّهُ لَيْسَ شَيْءٌ غَيْرَ مُمْكِنٍ لَدَى اللهِ».
+38 فَقَالَتْ مَرْيَمُ: «هُوَذَا أَنَا أَمَةُ الرَّبِّ. لِيَكُنْ لِي كَقَوْلِكَ». فَمَضَى مِنْ عِنْدِهَا الْمَلاَكُ`,
+              question: "سُؤَال: اكتبوا ٣ صفات ظهرت في رد العذراء ؟"
+            }, 
+            { 
+              name: "زيارة اليصابات", 
+              image: "المحطة الاولى/زيارة اليصابات.png", 
+              textContent: `العذراء مريم تزور أليصابات
+39 فَقَامَتْ مَرْيَمُ فِي تِلْكَ الأَيَّامِ وَذَهَبَتْ بِسُرْعَةٍ إِلَى الْجِبَالِ إِلَى مَدِينَةِ يَهُوذَا`,
+              question: "سُؤَال: لية العذراء راحت بسرعة تخدم اليصابات رغم أنها كانت محتاجة ترتاح ؟"
+            }
+          ]
+        },
+        station2: {
+          title: "المحطة الثانية",
+          subItems: [
+            {
+              name: "ميلاد المسيح",
+              image: "المحطة التانية/ميلاد المسيح.png",
+              textContent: `ميلاد يسوع المسيح
+1 وَفِي تِلْكَ الأَيَّامِ صَدَرَ أَمْرٌ مِنْ أُوغُسْطُسَ قَيْصَرَ بِأَنْ يُكْتَتَبَ كُلُّ الْمَسْكُونَةِ.
+2 وَهَذَا الاكْتِتَابُ الأَوَّلُ جَرَى إِذْ كَانَ كِيرِينِيُوسُ وَالِيَ سُورِيَّةَ.
+3 فَذَهَبَ الْجَمِيعُ لِيُكْتَتَبُوا، كُلُّ وَاحِدٍ إِلَى مَدِينَتِهِ.
+4 فَصَعِدَ يُوسُفُ أَيْضًا مِنَ الْجَلِيلِ مِنْ مَدِينَةِ النَّاصِرَةِ إِلَى الْيَهُودِيَّةِ، إِلَى مَدِينَةِ دَاوُدَ الَّتِي تُدْعَى بَيْتَ لَحْمٍ، لِكَوْنِهِ مِنْ بَيْتِ دَاوُدَ وَعَشِيرَتِهِ،
+5 لِيُكْتَتَبَ مَعَ مَرْيَمَ امْرَأَتِهِ الْمَخْطُوبَةِ وَهِيَ حُبْلَى.
+6 وَبَيْنَمَا هُمَا هُنَاكَ تَمَّتْ أَيَّامُهَا لِتَلِدَ.
+7 فَوَلَدَتِ ابْنَهَا الْبِكْرَ وَقَمَّطَتْهُ وَأَضْجَعَتْهُ فِي الْمِذْوَدِ، إِذْ لَمْ يَكُنْ لَهُمَا مَوْضِعٌ فِي الْمَنْزِلِ.`,
+              question: "سُؤَال: لماذا اختار المسيح ان يولد في مذود بقر؟"
+            },
+            {
+              name: "الهروب",
+              image: "المحطة التانية/الهروب.png",
+              textContent: `الهرب إلى مصر
+13 وَبَعْدَمَا انْصَرَفُوا، إِذَا مَلاَكُ الرَّبِّ قَدْ ظَهَرَ لِيُوسُفَ فِي حُلْمٍ قَائِلًا: «قُمْ وَخُذِ الصَّبِيَّ وَأُمَّهُ وَاهْرُبْ إِلَى مِصْرَ، وَكُنْ هُنَاكَ حَتَّى أَقُولَ لَكَ. لأَنَّ هِيرُودُسَ مُزْمِعٌ أَنْ يَطْلُبَ الصَّبِيَّ لِيُهْلِكَهُ».
+14 فَقَامَ وَأَخَذَ الصَّبِيَّ وَأُمَّهُ لَيْلًا وَانْصَرَفَ إِلَى مِصْرَ.`,
+              question: "سُؤَال: اقرأوا الفقرة، ثم استخرجوا 4 صفات ظهرت في أمنا العذراء."
+            },
+            {
+              name: "العرس و الهيكل",
+              image: "المحطة التانية/العرس و الهيكل.png",
+              textContent: `العُرْس في قانا الجليل والمعجزة الأولى
+1 وَفِي الْيَوْمِ الثَّالِثِ كَانَ عُرْسٌ فِي قَانَا الْجَلِيلِ، وَكَانَتْ أُمُّ يَسُوعَ هُنَاكَ.
+2 وَدُعِيَ أَيْضًا يَسُوعُ وَتَلاَمِيذُهُ إِلَى الْعُرْسِ.
+3 وَلَمَّا فَرَغَتِ الْخَمْرُ، قَالَتْ أُمُّ يَسُوعَ لَهُ: «لَيْسَ لَهُمْ خَمْرٌ».`,
+              question: "سُؤَال: ليه العذراء ما طلبتش من المسيح يعمل معجزة، لكنها قالت للخدام: 'مهما قال لكم فافعلوه'؟"
+            }
+          ]
+        },
+        station3: {
+          title: "المحطة الثالثة",
+          subItems: [
+            { 
+              name: "الصلب", 
+              image: "المحطة الثالثة/الصلب.png", 
+              textContent: `وَكَانَتْ وَاقِفَاتٍ عِنْدَ صَلِيبِ يَسُوعَ، أُمُّهُ، وَأُخْتُ أُمِّهِ مَرْيَمُ زَوْجَةُ كِلُوبَا، وَمَرْيَمُ الْمَجْدَلِيَّةُ.
+26 فَلَمَّا رَأَى يَسُوعُ أُمَّهُ، وَالتِّلْمِيذَ الَّذِي كَانَ يُحِبُّهُ وَاقِفًا، قَالَ لأُمِّهِ: «يَا امْرَأَةُ، هُوَذَا ابْنُكِ».
+27 ثُمَّ قَالَ لِلتِّلْمِيذِ: «هُوَذَا أُمُّكَ». وَمِنْ تِلْكَ السَّاعَةِ أَخَذَهَا التِّلْمِيذُ إِلَى خَاصَّتِهِ.
+
+🎯 الرسالة
+المحبة الحقيقية لا تهرب وقت الألم، بل تثبت مع المسيح حتى النهاية.
+📖 "وكانت واقفات عند صليب يسوع أمه." (يوحنا 19: 25)`,
+              question: `📖 اقرأ يوحنا 19: 25-27
+استخرج من النص ثلاث صفات ظهرت في أمنا العذراء، واكتب أمام كل صفة الشاهد (الآية) الذي يدل عليها.
+
+🧩 سؤال للمناقشة: لما بتيجي ضيقة أو مشكلة، هل بقرب من ربنا ولا ببعد عنه؟
+العذراء علمتنا أن الإيمان الحقيقي يظهر وقت الصليب، وليس فقط وقت الفرح`
+            }, 
+            { 
+              name: "العنصرة", 
+              image: "المحطة الثالثة/العنصرة.png", 
+              textContent: `14 هَؤُلاَءِ كُلُّهُمْ كَانُوا يُواظِبُونَ بِنَفْسٍ وَاحِدَةٍ عَلَى الصَّلاَةِ وَالطِّلْبَةِ، مَعَ النِّسَاءِ، وَمَرْيَمَ أُمِّ يَسُوعَ، وَمَعَ إِخْوَتِهِ.
+
+💙 الرسالة الهادفة
+العذراء لم تتوقف عند المعجزات أو الكرامة التي نالتها، لكنها استمرت تعيش حياة الصلاة مع الكنيسة.
+القرب من الله لا يقاس بما حدث معي في الماضي، بل بمدى مواظبتي على الصلاة والشركة مع الكنيسة اليوم.`,
+              question: `🎯 سؤال المحطة: بعد كل الأحداث التي مرت بها العذراء، أين وجدها الإنجيل؟ وماذا كانت تفعل؟
+
+🧩 التحدي (رتبوا الاية ترتيب صحيحًا):
+الصلاة - بنفس واحدة - مريم أم يسوع - النساء - الطلبة
+
+🎯 التطبيق: لو حد سأل عنك النهارده، هل هيقدر يقول: "ده شخص يواظب على الصلاة"؟`
+            }
+          ]
+        }
+      };
+
+      function openStation(stationId) {
+        const data = stationsData[stationId];
+        if (!data) return;
+
+        document.getElementById('modal-title').innerText = data.title;
+        document.getElementById('text-display').style.display = 'none';
+        document.getElementById('question-display').style.display = 'none';
+
+        const container = document.getElementById('sub-options-container');
+        container.innerHTML = "";
+
+        data.subItems.forEach(item => {
+          const card = document.createElement('div');
+          card.className = 'sub-card';
+          card.onclick = () => showContent(item.name, item.textContent, item.question);
+          card.innerHTML = `<img src="${item.image}" alt="${item.name}"><span>${item.name}</span>`;
+          container.appendChild(card);
+        });
+
+        document.getElementById('modal').style.display = 'flex';
+      }
+
+      function showContent(name, text, question) {
+        document.getElementById('modal-title').innerText = name;
+        const textDiv = document.getElementById('text-display');
+        textDiv.innerText = text;
+        textDiv.style.display = 'block';
+
+        const qDiv = document.getElementById('question-display');
+        qDiv.innerText = question;
+        qDiv.style.display = 'block';
+      }
+
+      function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
